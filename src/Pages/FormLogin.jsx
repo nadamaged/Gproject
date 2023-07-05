@@ -19,30 +19,125 @@ const FormLogin = () => {
   // const [login]
   const LoginSubmitHandler = async (event) => {
     event.preventDefault();
-    let formData = {
+    const formmData = {
       email: event.target[0].value,
       password: event.target[1].value,
+
     };
-    const isValid = await LoginSchema.isValid(formData);
-    const errors = await LoginSchema.validate(formData, {
+    const isValid = await LoginSchema.isValid(formmData);
+    const errors = await LoginSchema.validate(formmData,
+      {
+        abortEarly: false,
+      }).catch((err) => {
+        return err.errors;
+      });
+    if (isValid) {
+      try {
+        const response = await fetch('http://walkie.test/api/login', {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formmData)
+        }).then(response => response.json())
+          .then(data => {
+            // Handle the response data
+            if (
+              data['Success'] == true) {
+              dispatch(LoginOrNotFun());
+              const ee = setTimeout(() => {
+                sessionStorage.setItem("loginOrNot", true);
+                nav("/home", { replace: true });
+                clearTimeout(ee);
+              }, 1000);
+
+              toast.success("Successfully Login", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+              });
+              event.target[0].value = "";
+              event.target[1].value = "";
+
+            }
+            else {
+              toast.error(errors[0], {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+              });
+            }
+            console.log(data);
+          })
+          .catch(error => {
+            // Handle any errors
+            console.error(error);
+          });
+      } catch (error) {
+        console.error(error);
+      }
+
+    }
+  };
+  const SignSubmitHandler = async (event) => {
+    event.preventDefault();
+    const formDataa = {
+      first_name: event.target[0].value,
+      last_name: event.target[1].value,
+      email: event.target[2].value,
+      password: event.target[3].value,
+    };
+    const isValid = await SignUpSchema.isValid(formDataa);
+    const errors = await SignUpSchema.validate(formDataa, {
       abortEarly: false,
     }).catch((err) => {
       return err.errors;
     });
     if (isValid) {
-      toast.success("Successfully Login", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-      event.target[0].value = "";
-      event.target[1].value = "";
-      // dispatch(LoginOrNotFun());
+      try {
+        const response = await fetch('http://walkie.test/api/register', {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formDataa)
+        }).then(response => response.json())
+          .then(data => {
+            // Handle the response data
+            console.log(data);
+          })
+          .catch(error => {
+            // Handle any errors
+            console.error(error);
+          });
+        toast.success("Successfully signup", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+        event.target[0].value = "";
+        event.target[1].value = "";
+        event.target[2].value = "";
+        event.target[3].value = "";
+      } catch (error) {
+        console.error(error);
+      }
+      dispatch(LoginOrNotFun());
       const ee = setTimeout(() => {
         sessionStorage.setItem("loginOrNot", true);
         nav("/home", { replace: true });
@@ -61,70 +156,20 @@ const FormLogin = () => {
       });
     }
   };
-  const SignSubmitHandler = async (event) => {
-    event.preventDefault();
-    const formData = {
-      firstName: event.target[0].value,
-      lastName: event.target[1].value,
-      email: event.target[2].value,
-      password: event.target[3].value,
-    };
-    const isValid = await SignUpSchema.isValid(formData);
-    const errors = await SignUpSchema.validate(formData, {
-      abortEarly: false,
-    }).catch((err) => {
-      return err.errors;
-    });
-    if (isValid) {
-      toast.success("Successfully Sign Up", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-      setLoginForm(!loginForm);
-      event.target[0].value = "";
-      event.target[1].value = "";
-      event.target[2].value = "";
-      event.target[3].value = "";
-    } else {
-      toast.error(errors[0], {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-    }
-  };
-  const authAxios = axios.create({
-    baseURL: `https://walkie-v2.000webhostapp.com/api`,
-    headers: {
-      "Content-Type": `application/json`,
-      Authorization: `Bearer 50|XkEx78NsusS90hSuE0qYEWBl13cncqClogBbs3qE`,
-    },
-  });
-  const getData = async () => {
-    // try {
-    await axios
-      .post(`https://walkie-v2.000webhostapp.com/api/login`, {
-        email: `mohamedshoman@eee.com`,
-        password: `11223344`,
-      })
-      .then((res) => console.log(res))
-      .catch((error) => console.log(error));
-    // console.log(res);
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  };
+
+  //   // try {
+  //   await axios
+  //     .post(`http://walkie.test/api/login`, {
+  //       // email: `mohamedshoman@eee.com`,
+  //       // password: `11223344`,
+  //     })
+  //     .then((res) => console.log(res))
+  //     .catch((error) => console.log(error));
+  //   // console.log(res);
+  //   // } catch (error) {
+  //   //   console.log(error);
+  //   // }
+  // };
   // useEffect(() => {
   //   getData();
   // }, []);
@@ -236,9 +281,8 @@ const FormLogin = () => {
           ></div>
           <div className="container d-flex flex-column justify-content-center align-items-center animation sign-in-main pt-4">
             <h2
-              className={`text-white fw-bold mb-3 p-3 col-3 text-center ${
-                loginForm ? `fs-3` : `fs-1`
-              }
+              className={`text-white fw-bold mb-3 p-3 col-3 text-center ${loginForm ? `fs-3` : `fs-1`
+                }
               ${loginForm ? `pb-4` : `pb-0`} `}
               style={{ cursor: "pointer" }}
               onClick={() => setLoginForm(false)}

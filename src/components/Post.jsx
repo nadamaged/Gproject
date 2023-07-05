@@ -5,11 +5,13 @@ import { useState } from "react";
 import AddComments from "./AddComments";
 import PostComments from "./PostComments";
 function Post() {
+  
   const [clicked, setClicked] = useState(false);
   const [followBtn, setFollowBtn] = useState(false);
   const [seeMore, setSeeMore] = useState(false);
   const [addComment, setAddComment] = useState(false);
   const [showComments, setShowComments] = useState(false);
+
   return (
     <div className="post col-12" style={{ zIndex: "100" }}>
       <div
